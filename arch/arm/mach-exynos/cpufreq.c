@@ -709,7 +709,7 @@ static struct notifier_block exynos_cpufreq_policy_notifier = {
 
 static int exynos_cpufreq_cpu_init(struct cpufreq_policy *policy)
 {
-	int ret;
+	int retval;
 
 	policy->cur = policy->min = policy->max = exynos_getspeed(policy->cpu);
 
@@ -731,14 +731,14 @@ static int exynos_cpufreq_cpu_init(struct cpufreq_policy *policy)
 		cpumask_setall(policy->cpus);
 	}
 
-	ret = cpufreq_frequency_table_cpuinfo(policy, exynos_info->freq_table);
-	if (ret)
-		return ret;
+	retval = cpufreq_frequency_table_cpuinfo(policy, exynos_info->freq_table);
 
-	cpufreq_frequency_table_get_attr(exynos_info->freq_table, policy->cpu);
+	/* Keep stock frq. as default startup frq. */
+	policy->max = 1400000;
+	policy->min = 200000;
 
-	return 0;
-}
+	return retval;
+ }
 
 static int exynos_cpufreq_cpu_exit(struct cpufreq_policy *policy)
 {

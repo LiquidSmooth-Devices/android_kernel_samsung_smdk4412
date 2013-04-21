@@ -102,9 +102,6 @@ struct busfreq_data {
 	/* Dividers calculated at boot/probe-time */
 	unsigned int dmc_divtable[_LV_END]; /* DMC0 */
 	unsigned int top_divtable[_LV_END];
-
-	/* Exynos4x12 uses DMC_PAUSE */
-	unsigned int dmc_pause_ctrl;
 };
 
 struct bus_opp_table {
@@ -695,6 +692,7 @@ static int exynos4x12_get_dev_status(struct busfreq_data *data,
 	unsigned long long busy, total;
 
 	ppmu_update(data->dev, 3);
+	ppmu_start(data->dev);
 
 	if (ppmu_load[PPMU_DMC0] > ppmu_load[PPMU_DMC1])
 		id = PPMU_DMC0;
@@ -714,7 +712,6 @@ static int exynos4x12_get_dev_status(struct busfreq_data *data,
 	stat->busy_time = busy;
 	stat->total_time = total;
 
-	ppmu_start(data->dev);
 	return 0;
 }
 
@@ -1297,11 +1294,6 @@ static __devinit int exynos4_busfreq_probe(struct platform_device *pdev)
 	case TYPE_BUSF_EXYNOS4412:
 		err = exynos4x12_init_tables(data);
 
-		/* Enable pause function for DREX2 DVFS */
-		data->dmc_pause_ctrl = __raw_readl(EXYNOS4_DMC_PAUSE_CTRL);
-		data->dmc_pause_ctrl |= DMC_PAUSE_ENABLE;
-		__raw_writel(data->dmc_pause_ctrl, EXYNOS4_DMC_PAUSE_CTRL);
-
 		ppmu_clk = clk_get(NULL, "ppmudmc0");
 		if (IS_ERR(ppmu_clk))
 			printk(KERN_ERR "failed to get ppmu_dmc0\n");
@@ -1545,6 +1537,53 @@ static void __exit exynos4_busfreq_exit(void)
 }
 module_exit(exynos4_busfreq_exit);
 
+#ifdef CONFIG_BUSFREQ_LOCK_WRAPPER
+#include <mach/cpufreq.h>
+static struct pm_qos_request_list qos_wrapper[DVFS_LOCK_ID_END];
+
+/* Wrappers for obsolete legacy kernel hack (busfreq_lock/lock_free) */
+int exynos4_busfreq_lock(unsigned int nId, enum busfreq_level_request lvl)
+{
+	s32 qos_value;
+
+	if (WARN(nId >= DVFS_LOCK_ID_END, "incorrect nId."))
+		return -EINVAL;
+	if (WARN(lvl >= BUS_LEVEL_END, "incorrect level."))
+		return -EINVAL;
+
+	switch (lvl) {
+	case BUS_L0:
+		qos_value = 400000;
+		break;
+	case BUS_L1:
+		qos_value = 267000;
+		break;
+	case BUS_L2:
+		qos_value = 133000;
+		break;
+	default:
+		qos_value = 0;
+	}
+
+	if (qos_wrapper[nId].pm_qos_class == 0) {
+		pm_qos_add_request(&qos_wrapper[nId],
+				   PM_QOS_BUS_DMA_THROUGHPUT, qos_value);
+	} else {
+		pm_qos_update_request(&qos_wrapper[nId], qos_value);
+	}
+
+	return 0;
+}
+void exynos4_busfreq_lock_free(unsigned int nId)
+{
+	if (WARN(nId >= DVFS_LOCK_ID_END, "incorrect nId."))
+		return;
+
+	if (qos_wrapper[nId].pm_qos_class)
+		pm_qos_update_request(&qos_wrapper[nId],
+				      PM_QOS_BUS_DMA_THROUGHPUT_DEFAULT_VALUE);
+}
+#endif
 MODULE_LICENSE("GPL");
 MODULE_DESCRIPTION("EXYNOS4 busfreq driver with devfreq framework");
 MODULE_AUTHOR("MyungJoo Ham <myungjoo.ham@samsung.com>");

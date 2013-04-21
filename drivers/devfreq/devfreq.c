@@ -164,9 +164,10 @@ static int devfreq_qos_notifier_call(struct notifier_block *nb,
 	struct devfreq_pm_qos_table *qos_list = devfreq->profile->qos_list;
 	bool qos_use_max = devfreq->profile->qos_use_max;
 
-	if (!qos_list)
+	if (qos_list)
 		return NOTIFY_DONE;
 
+	/* TODO: */
 	mutex_lock(&devfreq->lock);
 
 	switch (devfreq->profile->qos_type) {
@@ -182,9 +183,6 @@ static int devfreq_qos_notifier_call(struct notifier_block *nb,
 	case PM_QOS_BUS_DMA_THROUGHPUT:
 		default_value = PM_QOS_BUS_DMA_THROUGHPUT_DEFAULT_VALUE;
 		break;
-	case PM_QOS_DISPLAY_FREQUENCY:
-		default_value = PM_QOS_DISPLAY_FREQUENCY_DEFAULT_VALUE;
-		break;
 	default:
 		/* Won't do any check to detect "default" state */
 		break;
@@ -196,9 +194,9 @@ static int devfreq_qos_notifier_call(struct notifier_block *nb,
 	}
 
 	for (i = 0; qos_list[i].freq; i++) {
-		/* QoS Met */
-		if ((qos_use_max && qos_list[i].qos_value >= value) ||
-		    (!qos_use_max && qos_list[i].qos_value <= value)) {
+		/* Qos Met */
+		if ((qos_use_max && qos_list[i].qos_value <= value) ||
+		    (!qos_use_max && qos_list[i].qos_value >= value)) {
 			devfreq->qos_min_freq = qos_list[i].freq;
 			goto update;
 		}

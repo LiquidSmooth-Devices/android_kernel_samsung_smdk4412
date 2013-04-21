@@ -564,9 +564,9 @@ void exynos4x12_target(int index)
 		EXYNOS4_CLKDIV_DMC1_C2C_MASK |
 		EXYNOS4_CLKDIV_DMC1_C2CACLK_MASK);
 
-	tmp |= ((clkdiv_dmc1[index][0] << EXYNOS4_CLKDIV_DMC1_G2D_ACP_SHIFT) |
-		(clkdiv_dmc1[index][1] << EXYNOS4_CLKDIV_DMC1_C2C_SHIFT) |
-		(clkdiv_dmc1[index][2] << EXYNOS4_CLKDIV_DMC1_C2CACLK_SHIFT));
+	tmp |= ((clkdiv_dmc1[div_index][0] << EXYNOS4_CLKDIV_DMC1_G2D_ACP_SHIFT) |
+		(clkdiv_dmc1[div_index][1] << EXYNOS4_CLKDIV_DMC1_C2C_SHIFT) |
+		(clkdiv_dmc1[div_index][2] << EXYNOS4_CLKDIV_DMC1_C2CACLK_SHIFT));
 
 	__raw_writel(tmp, EXYNOS4_CLKDIV_DMC1);
 
@@ -583,11 +583,11 @@ void exynos4x12_target(int index)
 		EXYNOS4_CLKDIV_TOP_ACLK133_MASK |
 		EXYNOS4_CLKDIV_TOP_ONENAND_MASK);
 
-	tmp |= ((clkdiv_top[index][0] << EXYNOS4_CLKDIV_TOP_ACLK266_GPS_SHIFT) |
-		(clkdiv_top[index][1] << EXYNOS4_CLKDIV_TOP_ACLK100_SHIFT) |
-		(clkdiv_top[index][2] << EXYNOS4_CLKDIV_TOP_ACLK160_SHIFT) |
-		(clkdiv_top[index][3] << EXYNOS4_CLKDIV_TOP_ACLK133_SHIFT) |
-		(clkdiv_top[index][4] << EXYNOS4_CLKDIV_TOP_ONENAND_SHIFT));
+	tmp |= ((clkdiv_top[div_index][0] << EXYNOS4_CLKDIV_TOP_ACLK266_GPS_SHIFT) |
+		(clkdiv_top[div_index][1] << EXYNOS4_CLKDIV_TOP_ACLK100_SHIFT) |
+		(clkdiv_top[div_index][2] << EXYNOS4_CLKDIV_TOP_ACLK160_SHIFT) |
+		(clkdiv_top[div_index][3] << EXYNOS4_CLKDIV_TOP_ACLK133_SHIFT) |
+		(clkdiv_top[div_index][4] << EXYNOS4_CLKDIV_TOP_ONENAND_SHIFT));
 
 	__raw_writel(tmp, EXYNOS4_CLKDIV_TOP);
 
@@ -628,7 +628,7 @@ void exynos4x12_target(int index)
 
 	tmp &= ~(EXYNOS4_CLKDIV_MFC_MASK);
 
-	tmp |= ((clkdiv_sclkip[index][0] << EXYNOS4_CLKDIV_MFC_SHIFT));
+	tmp |= ((clkdiv_sclkip[div_index][0] << EXYNOS4_CLKDIV_MFC_SHIFT));
 
 	__raw_writel(tmp, EXYNOS4_CLKDIV_MFC);
 
@@ -641,7 +641,7 @@ void exynos4x12_target(int index)
 
 	tmp &= ~(EXYNOS4_CLKDIV_CAM1_JPEG_MASK);
 
-	tmp |= ((clkdiv_sclkip[index][1] << EXYNOS4_CLKDIV_CAM1_JPEG_SHIFT));
+	tmp |= ((clkdiv_sclkip[div_index][1] << EXYNOS4_CLKDIV_CAM1_JPEG_SHIFT));
 
 	__raw_writel(tmp, EXYNOS4_CLKDIV_CAM1);
 
@@ -753,7 +753,7 @@ void exynos4x12_set_qos(unsigned int index)
 
 void exynos4x12_suspend(void)
 {
-	/* Nothing to do */
+	exynos4x12_post(LV_0);
 }
 
 void exynos4x12_resume(void)
@@ -797,7 +797,7 @@ EXPORT_SYMBOL_GPL(exynos4x12_find_busfreq_by_volt);
 
 unsigned int exynos4x12_get_int_volt(unsigned long index)
 {
-	return exynos4_int_volt[asv_group_index][index];
+	return exynos4_int_volt[asv_group_index][index] + BUSFREQ_VOL_COMP;
 }
 
 struct opp *exynos4x12_monitor(struct busfreq_data *data)

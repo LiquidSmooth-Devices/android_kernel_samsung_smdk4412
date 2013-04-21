@@ -2077,7 +2077,7 @@ int melfas_power(bool on)
 	if (IS_ERR(regulator))
 		return PTR_ERR(regulator);
 
-	printk(KERN_DEBUG "[TSP] %s %s\n", __func__, on ? "on" : "off");
+	pr_debug("[TSP] %s %s\n", __func__, on ? "on" : "off");
 
 	if (on) {
 		/* Analog-Panel Power */

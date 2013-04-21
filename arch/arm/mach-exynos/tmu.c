@@ -1107,12 +1107,12 @@ static int __devinit s5p_tmu_probe(struct platform_device *pdev)
 		 info->cpufreq_level_2nd_throttle);
 
 #if defined(CONFIG_TC_VOLTAGE) /* Temperature compensated voltage */
-	if (exynos_find_cpufreq_level_by_volt(pdata->temp_compensate.arm_volt,
+/*	if (exynos_find_cpufreq_level_by_volt(pdata->temp_compensate.arm_volt,
 		&info->cpulevel_tc) < 0) {
 		dev_err(&pdev->dev, "cpufreq_get_level error\n");
 		ret = -EINVAL;
 		goto err_nores;
-	}
+	}*/
 #ifdef CONFIG_BUSFREQ_OPP
 	/* To lock bus frequency in OPP mode */
 	info->bus_dev = dev_get("exynos-busfreq");

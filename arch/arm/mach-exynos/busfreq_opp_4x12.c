@@ -55,6 +55,8 @@
 #define CPU_SLOPE_SIZE			7
 #define PPMU_THRESHOLD                 5
 
+#define BUSFREQ_VOL_COMP 50000
+
 unsigned int up_threshold        = UP_THRESHOLD;
 unsigned int ppmu_threshold      = PPMU_THRESHOLD;
 unsigned int idle_threshold      = IDLE_THRESHOLD;
@@ -753,7 +755,7 @@ void exynos4x12_set_qos(unsigned int index)
 
 void exynos4x12_suspend(void)
 {
-	/* Nothing to do */
+	exynos4x12_post(LV_0);
 }
 
 void exynos4x12_resume(void)
@@ -797,7 +799,7 @@ EXPORT_SYMBOL_GPL(exynos4x12_find_busfreq_by_volt);
 
 unsigned int exynos4x12_get_int_volt(unsigned long index)
 {
-	return exynos4_int_volt[asv_group_index][index];
+	return exynos4_int_volt[asv_group_index][index] + BUSFREQ_VOL_COMP;
 }
 
 struct opp *exynos4x12_monitor(struct busfreq_data *data)

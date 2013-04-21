@@ -45,6 +45,12 @@
 
 unsigned int exynos_armclk_max;
 
+/* ASV function for Fused Chip */
+#define IDS_ARM_OFFSET	24
+#define IDS_ARM_MASK	0xFF
+#define HPM_OFFSET	12
+#define HPM_MASK	0x1F
+
 struct asv_judge_table exynos4x12_limit[] = {
 	/* HPM, IDS */
 	{  0,   0},		/* Reserved Group */

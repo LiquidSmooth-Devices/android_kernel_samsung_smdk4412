@@ -2999,7 +2999,7 @@ static unsigned long rtcc_do_try_to_free_pages(struct zonelist *zonelist, struct
 	struct zone *zone;
 	unsigned long writeback_threshold;
 
-	get_mems_allowed();
+  	get_mems_allowed();
 	delayacct_freepages_start();
 
 	if (scanning_global_lru(sc))

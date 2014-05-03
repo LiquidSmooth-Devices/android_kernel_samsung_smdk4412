@@ -1156,7 +1156,7 @@ static struct page *__rmqueue_cma(struct zone *zone, unsigned int order,
 
 	if (migratetype == MIGRATE_MOVABLE && !zone->cma_alloc)
 		page = __rmqueue_smallest(zone, order, MIGRATE_CMA);
-	else
+	if (!page)
 retry_reserve :
 		page = __rmqueue_smallest(zone, order, migratetype);
 

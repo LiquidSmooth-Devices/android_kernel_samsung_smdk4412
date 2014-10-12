@@ -84,9 +84,6 @@ endif
 else
 obj-$(CONFIG_MACH_U1_BD)		+= u1-gpio.o
 endif
-ifeq ($(CONFIG_MACH_U1_NA_SPR),y)
-obj-$(CONFIG_MACH_U1)			+= dev-c1-phone.o
-endif
 obj-$(CONFIG_MACH_Q1_BD)		+= q1-gpio.o board-gps-bcm475x.o
 obj-$(CONFIG_MACH_U1)			+= u1-wlan.o
 obj-$(CONFIG_MACH_PX)			+= mach-px.o sec-common.o board-gps-bcm475x.o px-switch.o
@@ -330,7 +327,13 @@ obj-$(CONFIG_SEC_MODEM_M1)		+= board-c1-modems.o
 obj-$(CONFIG_SEC_MODEM_C1)		+= board-c1-modems.o
 obj-$(CONFIG_SEC_MODEM_C1_LGT)		+= board-c1lgt-modems.o
 obj-$(CONFIG_SEC_MODEM_U1)		+= board-u1-modems.o
+ifeq ($(CONFIG_SEC_MODEM_U1_SPR),y)
 obj-$(CONFIG_SEC_MODEM_U1_SPR)		+= board-u1-spr-modems.o
+else
+ifeq ($(CONFIG_MACH_U1_NA_SPR),y)
+obj-$(CONFIG_MACH_U1)	        	+= dev-c1-phone.o
+endif
+endif
 obj-$(CONFIG_SEC_MODEM_U1_LGT)		+= board-u1-lgt-modems.o
 obj-$(CONFIG_SEC_MODEM_P8LTE)		+= board-p8ltevzw-modems.o
 obj-$(CONFIG_SEC_DEBUG)			+= sec_debug.o sec_getlog.o sec_gaf.o
